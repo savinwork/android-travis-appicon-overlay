@@ -27,57 +27,57 @@ class AppIconOverlayTask extends DefaultTask {
     def overlay() {
         def t0 = System.currentTimeMillis()
 
-        if (resourcesPath.exists()) {
-            List<File> files = findIcons(resourcesPath, manifestFile)
-
-            for (File inputFile : files) {
-                info("process file: $inputFile")
-
-                def formatBinding = ['branch': queryGit("abbrev-ref"), 'commit': queryGit("short"), 'build': buildVariant]
-                def caption = new SimpleTemplateEngine().createTemplate(project.appiconoverlay.format).make(formatBinding)
-
-                try {
-                    def basename = inputFile.name
-                    def resType = inputFile.parentFile.name
-                    def outputFile = new File(inputFile.absolutePath) //*/new File(outputDir, "${resType}/${basename}")
-                    info("output file: $outputFile")
-                    outputFile.parentFile.mkdirs()
-
-                    def ribbonizer = new Ribbonizer(inputFile, outputFile)
-                    ribbonizer.process2(variant)
-                    ribbonizer.save()
-                } catch (Exception e) {
-                    info("task exception for ${inputFile}: ${e.toString()}")
-                }
-            }
-        }
-
-//        def names = new HashSet<String>(/*iconNames*/)
-//        names.add(getLauncherIcon(manifestFile))
+//        if (resourcesPath.exists()) {
+//            List<File> files = findIcons(resourcesPath, manifestFile)
 //
-//        for (String n : names) {
-//            for (SourceProvider sourceProvider : variant.sourceSets) {
-//                for (File resDir : sourceProvider.resDirectories) {
-//                    if (resDir.compareTo(outputDir) != 0) {
+//            for (File inputFile : files) {
+//                info("process file: $inputFile")
 //
-//                        info("task started name: $n, dir: $resDir, include: ${resourceFilePattern(n)}")
-//                        ConfigurableFileTree tree = project.fileTree(dir: resDir, include: resourceFilePattern(n));
-//                        for (File inputFile : tree.files) {
-//                            info("process $inputFile")
+//                def formatBinding = ['branch': queryGit("abbrev-ref"), 'commit': queryGit("short"), 'build': buildVariant]
+//                def caption = new SimpleTemplateEngine().createTemplate(project.appiconoverlay.format).make(formatBinding)
 //
-//                            def basename = inputFile.name
-//                            def resType = inputFile.parentFile.name
-//                            def outputFile = new File(outputDir, "${resType}/${basename}")
-//                            outputFile.parentFile.mkdirs()
+//                try {
+//                    def basename = inputFile.name
+//                    def resType = inputFile.parentFile.name
+//                    def outputFile = new File(inputFile.absolutePath) //*/new File(outputDir, "${resType}/${basename}")
+//                    info("output file: $outputFile")
+//                    outputFile.parentFile.mkdirs()
 //
-//                            def ribbonizer = new Ribbonizer(inputFile, outputFile)
-//                            ribbonizer.process2(variant)
-//                            ribbonizer.save()
-//                        }
-//                    }
+//                    def ribbonizer = new Ribbonizer(inputFile, outputFile)
+//                    ribbonizer.process2(variant)
+//                    ribbonizer.save()
+//                } catch (Exception e) {
+//                    info("task exception for ${inputFile}: ${e.toString()}")
 //                }
 //            }
 //        }
+
+        def names = new HashSet<String>(/*iconNames*/)
+        names.add(getLauncherIcon(manifestFile))
+
+        for (String n : names) {
+            for (SourceProvider sourceProvider : variant.sourceSets) {
+                for (File resDir : sourceProvider.resDirectories) {
+                    if (resDir.compareTo(outputDir) != 0) {
+
+                        info("task started name: $n, dir: $resDir, include: ${resourceFilePattern(n)}")
+                        ConfigurableFileTree tree = project.fileTree(dir: resDir, include: resourceFilePattern(n));
+                        for (File inputFile : tree.files) {
+                            info("process $inputFile")
+
+                            def basename = inputFile.name
+                            def resType = inputFile.parentFile.name
+                            def outputFile = new File(outputDir, "${resType}/${basename}")
+                            outputFile.parentFile.mkdirs()
+
+                            def ribbonizer = new Ribbonizer(inputFile, outputFile)
+                            ribbonizer.process2(variant)
+                            ribbonizer.save()
+                        }
+                    }
+                }
+            }
+        }
 
         info("task finished in ${System.currentTimeMillis() - t0}ms")
     }
@@ -95,7 +95,7 @@ class AppIconOverlayTask extends DefaultTask {
 
     public static String getLauncherIcon(File manifestFile)
             throws SAXException, ParserConfigurationException, IOException {
-        if (manifestFile != null) {
+        if (manifestFile != null && manifestFile.exists()) {
             GPathResult manifestXml = new XmlSlurper().parse(manifestFile);
             GPathResult applicationNode = (GPathResult) manifestXml.getProperty("application");
             return String.valueOf(applicationNode.getProperty("@android:icon"));
@@ -111,7 +111,7 @@ class AppIconOverlayTask extends DefaultTask {
      * @return The icon name specified in the {@code <application/ >} node
      */
     static String getIconName(File manifestFile) {
-        if (manifestFile == null || manifestFile.isDirectory() || !manifestFile.exists()) {
+        if (manifestFile == null || !manifestFile.exists() || manifestFile.isDirectory() || !manifestFile.exists()) {
             return null;
         }
 

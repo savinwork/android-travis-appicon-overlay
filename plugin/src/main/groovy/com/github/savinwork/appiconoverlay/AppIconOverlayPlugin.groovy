@@ -33,109 +33,109 @@ public class AppIconOverlayPlugin implements Plugin<Project> {
         }
     }
 
-    @Override
-    void apply(Project project) {
-        def log = project.logger
-
-        project.extensions.create("appiconoverlay", AppIconOverlayExtension)
-
-        project.afterEvaluate {
-            println 'start AppIconOverlayPlugin'
-            def android = project.extensions.findByType(AppExtension)
-            if (!android) {
-                throw new Exception("Not an Android application; you forget `apply plugin: 'com.android.application'`?")
-            }
-            android.applicationVariants.all { ApplicationVariant appvariant ->
-
-//                // skip release builds
-//                if (appvariant.buildType.name.equals(BuilderConstants.RELEASE)) {
-//                    log.debug("Skipping build type: ${appvariant.buildType.name}")
-//                    return;
-//                }
-//
-//                //skip master
-//                String gitBranch = "branch";
-//                if (System.getenv("TRAVIS_BRANCH") != null) {
-//                    gitBranch = System.getenv("TRAVIS_BRANCH");
-//                }
-//                if (gitBranch.equals("master")) {
-//                    println "[app] skip because TRAVIS_BRANCH == 'master'"
-//                    return;
-//                }
-
-                appvariant.outputs.each { BaseVariantOutput output ->
-                    println " -> [${AppIconOverlayExtension.NAME}] ${appvariant.name}"
-
-                    // set up overlay task
-                    def overlayTask = project.task(type: AppIconOverlayTask, "${AppIconOverlayTask.NAME}${appvariant.name.capitalize()}") as AppIconOverlayTask
-                    overlayTask.variant = appvariant
-                    overlayTask.outputDir = new File(project.buildDir, "generated/${AppIconOverlayExtension.NAME}/res/${appvariant.name}")
-                    overlayTask.manifestFile = output.processManifest.manifestOutputFile
-                    overlayTask.resourcesPath = appvariant.mergeResources.outputDir
-                    overlayTask.buildVariant = "${appvariant.name.capitalize()}"
-
-                    // hook overlay task into android build chain
-                    overlayTask.dependsOn output.processManifest
-                    output.processResources.dependsOn overlayTask
-                }
-            }
-            println 'fin AppIconOverlayPlugin'
-        }
-    }
-
 //    @Override
 //    void apply(Project project) {
+//        def log = project.logger
 //
-//        // Register extension to allow users to customize
-//        project.extensions.create(AppIconOverlayExtension.NAME, AppIconOverlayExtension)
+//        project.extensions.create("appiconoverlay", AppIconOverlayExtension)
 //
 //        project.afterEvaluate {
 //            println 'start AppIconOverlayPlugin'
-//
 //            def android = project.extensions.findByType(AppExtension)
 //            if (!android) {
-//                throw new Exception("Not an Android application; you forget `apply plugin: 'com.android.application`?")
+//                throw new Exception("Not an Android application; you forget `apply plugin: 'com.android.application'`?")
 //            }
+//            android.applicationVariants.all { ApplicationVariant appvariant ->
 //
-//            def tasks = new ArrayList<Task>();
-//            DomainObjectSet<ApplicationVariant> variants = android.applicationVariants;
-//            for (ApplicationVariant variant : variants) {
-//
+////                // skip release builds
+////                if (appvariant.buildType.name.equals(BuilderConstants.RELEASE)) {
+////                    log.debug("Skipping build type: ${appvariant.buildType.name}")
+////                    return;
+////                }
+////
 ////                //skip master
 ////                String gitBranch = "branch";
 ////                if (System.getenv("TRAVIS_BRANCH") != null) {
 ////                    gitBranch = System.getenv("TRAVIS_BRANCH");
 ////                }
-////                if (gitBranch.compareTo("master") == 0) {
+////                if (gitBranch.equals("master")) {
 ////                    println "[app] skip because TRAVIS_BRANCH == 'master'"
-////                    break;
+////                    return;
 ////                }
 //
-//                //add tasks
-//                println " -> [${AppIconOverlayExtension.NAME}] ${variant.name}"
-//                def generatedResDir = getGeneratedResDir(project, variant)
-//                android.sourceSets.findByName(variant.name).res.srcDir(generatedResDir)
+//                appvariant.outputs.each { BaseVariantOutput output ->
+//                    println " -> [${AppIconOverlayExtension.NAME}] ${appvariant.name}"
 //
-//                def name = "${AppIconOverlayTask.NAME}${variant.name.capitalize()}"
-//                def task = project.task(name, type: AppIconOverlayTask) as AppIconOverlayTask
-//                task.variant = variant
-//                task.outputDir = generatedResDir
-//                task.manifestFile = variant.outputs.first().processManifest.manifestOutputFile
-//                task.resourcesPath = variant.mergeResources.outputDir
-//                task.buildVariant = "${variant.name.capitalize()}"
+//                    // set up overlay task
+//                    def overlayTask = project.task(type: AppIconOverlayTask, "${AppIconOverlayTask.NAME}${appvariant.name.capitalize()}") as AppIconOverlayTask
+//                    overlayTask.variant = appvariant
+//                    overlayTask.outputDir = new File(project.buildDir, "generated/${AppIconOverlayExtension.NAME}/res/${appvariant.name}")
+//                    overlayTask.manifestFile = output.processManifest.manifestOutputFile
+//                    overlayTask.resourcesPath = appvariant.mergeResources.outputDir
+//                    overlayTask.buildVariant = "${appvariant.name.capitalize()}"
 //
-//                tasks.add(task)
-//
-//                def generateResources = project.getTasksByName("generate${variant.name.capitalize()}Resources", false)
-//                for (Task t : generateResources) {
-//                    t.dependsOn(task)
+//                    // hook overlay task into android build chain
+//                    overlayTask.dependsOn output.processManifest
+//                    output.processResources.dependsOn overlayTask
 //                }
 //            }
-//
-//            project.task(AppIconOverlayTask.NAME, dependsOn: tasks);
 //            println 'fin AppIconOverlayPlugin'
 //        }
 //    }
+
+    @Override
+    void apply(Project project) {
+
+        // Register extension to allow users to customize
+        project.extensions.create(AppIconOverlayExtension.NAME, AppIconOverlayExtension)
+
+        project.afterEvaluate {
+            println 'start AppIconOverlayPlugin'
+
+            def android = project.extensions.findByType(AppExtension)
+            if (!android) {
+                throw new Exception("Not an Android application; you forget `apply plugin: 'com.android.application`?")
+            }
+
+            def tasks = new ArrayList<Task>();
+            DomainObjectSet<ApplicationVariant> variants = android.applicationVariants;
+            for (ApplicationVariant variant : variants) {
+
+//                //skip master
+//                String gitBranch = "branch";
+//                if (System.getenv("TRAVIS_BRANCH") != null) {
+//                    gitBranch = System.getenv("TRAVIS_BRANCH");
+//                }
+//                if (gitBranch.compareTo("master") == 0) {
+//                    println "[app] skip because TRAVIS_BRANCH == 'master'"
+//                    break;
+//                }
+
+                //add tasks
+                println " -> [${AppIconOverlayExtension.NAME}] ${variant.name}"
+                def generatedResDir = getGeneratedResDir(project, variant)
+                android.sourceSets.findByName(variant.name).res.srcDir(generatedResDir)
+
+                def name = "${AppIconOverlayTask.NAME}${variant.name.capitalize()}"
+                def task = project.task(name, type: AppIconOverlayTask) as AppIconOverlayTask
+                task.variant = variant
+                task.outputDir = generatedResDir
+                task.manifestFile = variant.outputs.first().processManifest.manifestOutputFile
+                task.resourcesPath = variant.mergeResources.outputDir
+                task.buildVariant = "${variant.name.capitalize()}"
+
+                tasks.add(task)
+
+                def generateResources = project.getTasksByName("generate${variant.name.capitalize()}Resources", false)
+                for (Task t : generateResources) {
+                    t.dependsOn(task)
+                }
+            }
+
+            project.task(AppIconOverlayTask.NAME, dependsOn: tasks);
+            println 'fin AppIconOverlayPlugin'
+        }
+    }
 
     static File getGeneratedResDir(Project project, ApplicationVariant variant) {
         return new File(project.buildDir, "generated/${AppIconOverlayExtension.NAME}/res/${variant.name}")
