@@ -1,0 +1,59 @@
+import com.android.build.gradle.api.ApplicationVariant
+
+apply plugin: 'com.android.application'
+apply plugin: 'com.github.savinwork.appiconoverlay'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        applicationId "com.github.savinwork.appiconoverlay"
+        minSdkVersion 15
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    productFlavors {
+        develop {
+            versionName "git rev-parse --short HEAD".execute().text.trim() // git commit hash
+        }
+        deploy {
+            def gitBranch = System.getenv("TRAVIS_BRANCH") ?: "git rev-parse --abbrev-ref HEAD".execute().text.trim().replaceAll("-", "_")
+            def gitCommitCounter = System.getenv("TRAVIS_BUILD_NUMBER") ?: "0" //or "git rev-list --all --count".execute().text.trim() // git commit count
+
+            versionName "1.0.${"git rev-parse --short HEAD".execute().text.trim()}" // git commit hash
+            versionCode gitCommitCounter as int
+
+            println "productFlavors-deploy: $applicationId, $versionName, $versionCode"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            applicationIdSuffix ".debug"
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:23.1.1'
+}
+
+appiconoverlay {
+    textColor = [255, 0, 255, 255] // [r, g, b, a]
+    format '$build->$branch\n$commit'
+}
+
