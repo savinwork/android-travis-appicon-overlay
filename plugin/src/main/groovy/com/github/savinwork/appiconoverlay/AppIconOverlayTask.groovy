@@ -29,7 +29,20 @@ class AppIconOverlayTask extends DefaultTask {
         def t0 = System.currentTimeMillis()
 
         AppIconOverlayExtension config = project.appiconoverlay;
-        def formatBinding = ['branch': queryGit("abbrev-ref"), 'commit': queryGit("short"), 'build': variant.name]
+
+        String travisBranch = queryGit(project, "abbrev-ref");
+        if (System.getenv("TRAVIS_BRANCH") != null) {
+            travisBranch = System.getenv("TRAVIS_BRANCH");
+        }
+        travisBranch = travisBranch.replace("feature-", "").replace("fix-", "").replace("task-", "").replace("test-", "");
+        def formatBinding = [
+                'branch': queryGit(project, "abbrev-ref"),
+                'commit': queryGit(project, "short"),
+                'build': variant.name,
+                'flavorName': variant.flavorName,
+                'TRAVIS_BRANCH': travisBranch,
+                'TRAVIS_BUILD_NUMBER': System.getenv("TRAVIS_BUILD_NUMBER") ?: "?"
+        ]
         String header = new SimpleTemplateEngine().createTemplate(config.textFormat).make(formatBinding).toString().trim().toUpperCase()
         String footer = new SimpleTemplateEngine().createTemplate(config.footerTextFormat).make(formatBinding).toString().trim().toUpperCase()
 
@@ -105,17 +118,14 @@ class AppIconOverlayTask extends DefaultTask {
         }
     }
 
-    public String queryGit(String command) {
+    public static String queryGit(Project project, String command) {
         def args = ["git", "rev-parse", "--${command}", "HEAD"]
-        info("executing git: ${args.join(' ')}")
-
+        //log(project, "executing git: ${args.join(' ')}")
         def git = args.execute(null, project.projectDir)
         git.waitFor()
-
         if (git.exitValue() != 0) {
-            info("git exited with a non-zero error code. Is there a .git directory?")
+            log(project, "git exited with a non-zero error code. Is there a .git directory?")
         }
-
-        return git.in.text.replaceAll(/\s/, "")
+        return git.in.text.trim()
     }
 }

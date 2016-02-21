@@ -31,7 +31,7 @@ public class DefaultOverlayFilter {
             return;
 
         int maxW = (asHeader) ? config.maxWidth : config.footerMaxWidth;
-        int maxH = (asHeader) ? config.maxHeight : config.footerMaxHeight;
+        int maxH = (asHeader) ? config.maxHeightPerLine : config.footerMaxHeightPerLine;
         Integer maxChars = (asHeader) ? config.maxCharsPerLine : config.footerMaxCharsPerLine;
         Color fontColor = (asHeader) ? config.getTextColor() : config.getFooterTextColor();
         Color backColor = (asHeader) ? config.getBackColor() : config.getFooterBackColor();

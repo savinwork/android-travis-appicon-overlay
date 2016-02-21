@@ -4,9 +4,16 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.github.savinwork.appiconoverlay'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'xxx'
+            keyPassword 'xxx'
+            storeFile file('key')
+            storePassword 'xxx'
+        }
+    }
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
-
     defaultConfig {
         applicationId "com.github.savinwork.appiconoverlay"
         minSdkVersion 15
@@ -14,12 +21,18 @@ android {
         versionCode 1
         versionName "1.0"
     }
-
+    signingConfigs {
+        release {
+            storeFile file("myreleasekey.keystore.jks")
+            storePassword "password"
+            keyAlias "MyReleaseKey"
+            keyPassword "password"
+        }
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
     }
-
     productFlavors {
         develop {
             versionName "git rev-parse --short HEAD".execute().text.trim() // git commit hash
@@ -34,27 +47,43 @@ android {
             println "productFlavors-deploy: $applicationId, $versionName, $versionCode"
         }
     }
-
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
-            applicationIdSuffix ".debug"
+            //applicationIdSuffix ".debug"
         }
     }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.1.1'
 }
 
 appiconoverlay {
+    textFormat = '$TRAVIS_BRANCH'
     textColor = [255, 255, 255, 255] // [r, g, b, a]
-    textFormat = '$build->$branch\n$commit'
-    maxCharsPerLine = 12
+    textBackColor = [0, 0, 0, 0xA0]
+    maxCharsPerLine = 8 // 0 - disable
+    maxWidth = 95 // percent
+    maxHeightPerLine = 30 // percent
+
+    footerTextFormat = '$TRAVIS_BUILD_NUMBER'
+    footerTextColor = [255, 255, 255, 255] // [r, g, b, a]
+    footerTextBackColor = [0, 0, 0, 0xA0]
+    footerMaxCharsPerLine = 8 // 0 - disable
+    footerMaxWidth = 95 // percent
+    footerMaxHeightPerLine = 30 // percent
+
+    ignoreRelease = false // ignore buildType.name == "release"
+    ignoreBranches "master"
+    //ignoreFlavors "deploy", "beta"
+
+    //iconNames "@drawable/my_logo" // extra graphics
 }
 
