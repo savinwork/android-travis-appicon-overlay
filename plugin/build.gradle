@@ -1,0 +1,28 @@
+
+final GROUP_ID = 'com.github.savinwork.appiconoverlay'
+final ARTIFACT_ID = 'plugin'
+final VERSION = '0.5.1'
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+}
+repositories {
+    jcenter()
+}
+
+apply plugin: 'java'
+compileJava {
+    sourceCompatibility = '1.7'
+}
+
+apply plugin: 'groovy'
+apply plugin: 'maven'
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+    compile 'com.android.tools.build:gradle:1.5.0'
+}
+
