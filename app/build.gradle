@@ -53,7 +53,8 @@ dependencies {
 }
 
 appiconoverlay {
-    textColor = [255, 0, 255, 255] // [r, g, b, a]
-    format '$build->$branch\n$commit'
+    textColor = [255, 255, 255, 255] // [r, g, b, a]
+    textFormat = '$build->$branch\n$commit'
+    maxCharsPerLine = 12
 }
 

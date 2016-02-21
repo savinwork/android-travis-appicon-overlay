@@ -6,17 +6,48 @@ class AppIconOverlayExtension {
 
     public static String NAME = "appiconoverlay";
 
-    int[] textColor = [255, 255, 255, 255]
-    int[] textBackColor = [0, 0, 0, 255]
-    int[] footerTextColor = [255, 255, 255, 255]
-    int[] footerBackColor = [0, 0, 0, 255]
-
-    public Color getFooterTextColor() {
-        return intArrayToColor(textColor) ?: TRANSPARENT
+    public AppIconOverlayExtension() {
     }
 
+    /**
+     * Format string to be used to create the text in the overlay.
+     * Note: Use single quotes, it's a GString.
+     * The following variables are available:
+     *     - $branch: name of git branch
+     *     - $commit: short SHA1 of latest commit in current branch
+     *     - $build: the name of the build variant ex. Debug
+     */
+    String textFormat = "HEADER" //'$build->$branch\n$commit'
+    /* header text color [r, g, b, a] */
+    int[] textColor = [0xFF, 0xFF, 0xFF, 0xFF]
+    /* header background color [r, g, b, a] */
+    int[] textBackColor = [0, 0, 0, 0xAF]
+    /* header chars per line */
+    public int maxCharsPerLine = 8
+    /* header max width, percentage of image.width */
+    public int maxWidth = 95
+    /* header max height per line, percentage of image.height */
+    public int maxHeight = 30
+
+    /* footer text */
+    String footerTextFormat = "FOOTER"
+    /* footer text color [r, g, b, a] */
+    int[] footerTextColor = [0xFF, 0xFF, 0xFF, 0xFF] //r, g, b, a
+    /* footer background color [r, g, b, a] */
+    int[] footerBackColor = [0, 0x5A, 0xB7, 0xAF]
+    /* header chars per line */
+    public int footerMaxCharsPerLine = 8
+    /* footer max width, percentage of image.width */
+    public int footerMaxWidth = 95
+    /* footer max height per line, percentage of image.height */
+    public int footerMaxHeight = 50
+
     public Color getTextColor() {
-        return intArrayToColor(footerTextColor) ?: TRANSPARENT
+        return intArrayToColor(textColor) ?: WHITE
+    }
+
+    public Color getFooterTextColor() {
+        return intArrayToColor(footerTextColor) ?: WHITE
     }
 
     public Color getBackColor() {
@@ -35,21 +66,7 @@ class AppIconOverlayExtension {
         }
     }
 
-    /**
-     * Format string to be used to create the text in the overlay.
-     * Note: Use single quotes, it's a GString.
-     * The following variables are available:
-     *     - $branch: name of git branch
-     *     - $commit: short SHA1 of latest commit in current branch
-     *     - $build: the name of the build variant ex. Debug
-     */
-    String format = '$build->$branch\n$commit'
-
-    public AppIconOverlayExtension() {
-    }
-
     Set<String> iconNames = new HashSet<>();
-
     public Set<String> getIconNames() {
         return iconNames;
     }
@@ -81,37 +98,4 @@ class AppIconOverlayExtension {
     public void iconName(String resName) {
         iconNames.add(resName);
     }
-
-//    List<FilterBuilder> filterBuilders = new ArrayList<>();
-//    public List<FilterBuilder> getFilterBuilders() {
-//        return filterBuilders;
-//    }
-//
-//    public void setFilterBuilders(Collection<FilterBuilder> filterBuilders) {
-//        this.filterBuilders = new ArrayList<>(filterBuilders);
-//    }
-//
-//    public void builder(FilterBuilder filterBuilder)
-//            throws IllegalAccessException, InstantiationException {
-//        this.filterBuilders.clear();
-//        this.filterBuilders.add(filterBuilder);
-//    }
-//
-//    // utilities
-//
-//    public Consumer<BufferedImage> grayScaleFilter(ApplicationVariant variant, File iconFile) {
-//        return new GrayScaleBuilder().apply(variant, iconFile);
-//    }
-//
-//    public Consumer<BufferedImage> grayRibbonFilter(ApplicationVariant variant, File iconFile) {
-//        return new GrayRibbonBuilder().apply(variant, iconFile);
-//    }
-//
-//    public Consumer<BufferedImage> yellowRibbonFilter(ApplicationVariant variant, File iconFile) {
-//        return new YellowRibbonBuilder().apply(variant, iconFile);
-//    }
-//
-//    public Consumer<BufferedImage> greenRibbonFilter(ApplicationVariant variant, File iconFile) {
-//        return new GreenRibbonBuilder().apply(variant, iconFile);
-//    }
 }

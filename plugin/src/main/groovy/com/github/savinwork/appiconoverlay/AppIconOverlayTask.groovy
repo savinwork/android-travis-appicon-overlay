@@ -13,7 +13,9 @@ import org.gradle.api.file.ConfigurableFileTree
 import org.gradle.api.tasks.TaskAction
 import org.xml.sax.SAXException
 
+import javax.imageio.ImageIO
 import javax.xml.parsers.ParserConfigurationException
+import java.awt.image.BufferedImage
 
 class AppIconOverlayTask extends DefaultTask {
 
@@ -26,8 +28,13 @@ class AppIconOverlayTask extends DefaultTask {
     public void run() {
         def t0 = System.currentTimeMillis()
 
+        AppIconOverlayExtension config = project.appiconoverlay;
+        def formatBinding = ['branch': queryGit("abbrev-ref"), 'commit': queryGit("short"), 'build': variant.name]
+        String header = new SimpleTemplateEngine().createTemplate(config.textFormat).make(formatBinding).toString().trim().toUpperCase()
+        String footer = new SimpleTemplateEngine().createTemplate(config.footerTextFormat).make(formatBinding).toString().trim().toUpperCase()
+
         // add launcher icon names
-        def names = new HashSet<String>(/*iconNames*/)
+        def names = new HashSet<String>(config.getIconNames())
         for (BaseVariantOutput output: variant.outputs) {
             String icon = getLauncherIcon(output.processManifest.manifestOutputFile)
             if (!names.contains(icon))
@@ -49,10 +56,12 @@ class AppIconOverlayTask extends DefaultTask {
                             def outputFile = new File(outputDir, "${resType}/${basename}")
                             outputFile.parentFile.mkdirs()
 
-                            def ribbonizer = new Ribbonizer(inputFile, outputFile)
-                            ribbonizer.process2(variant)
-                            ribbonizer.save()
+                            BufferedImage image = ImageIO.read(inputFile);
+                            DefaultOverlayFilter filter = new DefaultOverlayFilter(config);
+                            filter.apply(image, header, footer);
+                            ImageIO.write(image, "png", outputFile);
                         }
+
                     }
                 }
             }
@@ -96,7 +105,7 @@ class AppIconOverlayTask extends DefaultTask {
         }
     }
 
-    public static String queryGit(Project project, String command) {
+    public String queryGit(String command) {
         def args = ["git", "rev-parse", "--${command}", "HEAD"]
         info("executing git: ${args.join(' ')}")
 
