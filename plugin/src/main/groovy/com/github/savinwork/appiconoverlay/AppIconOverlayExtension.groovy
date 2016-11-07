@@ -19,9 +19,9 @@ class AppIconOverlayExtension {
 
     public void setIgnoreBranches(Collection<String> resNames) { ignoreBranches = new HashSet<>(resNames); }
 
-    public void ignoreBranches(String... branches) { setIconNames(Arrays.asList(branches)); }
+    public void ignoreBranches(String... branches) { setIgnoreBranches(Arrays.asList(branches)); }
 
-    public void ignoreBranches(Collection<String> branches) { setIconNames(resNames); }
+    public void ignoreBranches(Collection<String> branches) { setIgnoreBranches(branches); }
 
     public void ignoreBranches(String branch) { ignoreBranches.add(branch); }
 

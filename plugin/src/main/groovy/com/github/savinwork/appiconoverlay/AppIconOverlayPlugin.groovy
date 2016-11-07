@@ -70,7 +70,7 @@ public class AppIconOverlayPlugin implements Plugin<Project> {
                 }
 
                 //add tasks
-                AppIconOverlayTask.log(project, " -> [${AppIconOverlayExtension.NAME}] ${variant.name}")
+                AppIconOverlayTask.log(project, " -> [${AppIconOverlayExtension.NAME}] ${variant.name} branch: $branch, flavorName: ${variant.flavorName}, variant.buildType: ${variant.buildType.name}")
 
                 def outputDir = new File(project.buildDir, "generated/${AppIconOverlayExtension.NAME}/res/${variant.name}")
                 android.sourceSets.findByName(variant.name).res.srcDir(outputDir) //add source dir

@@ -52,6 +52,12 @@ class AppIconOverlayTask extends DefaultTask {
         String header = new SimpleTemplateEngine().createTemplate(config.textFormat).make(formatBinding).toString().trim().toUpperCase()
         String footer = new SimpleTemplateEngine().createTemplate(config.footerTextFormat).make(formatBinding).toString().trim().toUpperCase()
 
+        if (header == "" && footer == "") {
+            info("overlay text is empty")
+            info("task finished in ${System.currentTimeMillis() - t0}ms")
+            return
+        }
+
         // add launcher icon names
         def names = new HashSet<String>(config.getIconNames())
         for (BaseVariantOutput output: variant.outputs) {
