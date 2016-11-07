@@ -34,14 +34,20 @@ class AppIconOverlayTask extends DefaultTask {
         if (System.getenv("TRAVIS_BRANCH") != null) {
             travisBranch = System.getenv("TRAVIS_BRANCH");
         }
-        travisBranch = travisBranch.replace("feature-", "").replace("fix-", "").replace("task-", "").replace("test-", "");
+        travisBranch = travisBranch.replace("feature-", "")
+                //.replace("hotfix-", "")
+                //.replace("hotfixes-", "")
+                //.replace("fix-", "")
+                //.replace("fixes-", "")
+                .replace("task-", "")
+                .replace("test-", "");
         def formatBinding = [
                 'branch': queryGit(project, "abbrev-ref"),
                 'commit': queryGit(project, "short"),
                 'build': variant.name,
                 'flavorName': variant.flavorName,
                 'TRAVIS_BRANCH': travisBranch,
-                'TRAVIS_BUILD_NUMBER': System.getenv("TRAVIS_BUILD_NUMBER") ?: "?"
+                'TRAVIS_BUILD_NUMBER': System.getenv("TRAVIS_BUILD_NUMBER") ?: queryGit(project, "short")
         ]
         String header = new SimpleTemplateEngine().createTemplate(config.textFormat).make(formatBinding).toString().trim().toUpperCase()
         String footer = new SimpleTemplateEngine().createTemplate(config.footerTextFormat).make(formatBinding).toString().trim().toUpperCase()
