@@ -64,6 +64,9 @@ public class AppIconOverlayPlugin implements Plugin<Project> {
 
                 /* skip branch by name */
                 String branch = AppIconOverlayTask.queryGit(project, "abbrev-ref");
+                if (System.getenv("TRAVIS_BRANCH") != null) {
+                    branch = System.getenv("TRAVIS_BRANCH");
+                }
                 if (config.ignoreBranches.contains(branch)) {
                     AppIconOverlayTask.log(project, "Skipping branch name: $branch")
                     continue;
