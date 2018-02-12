@@ -1,2 +1,2 @@
-include ':app'
+//include ':app' // ! disable app module to rebuild plugin.jar, then copy it to app/plugins/appiconoverlay.jar
 include ':plugin'

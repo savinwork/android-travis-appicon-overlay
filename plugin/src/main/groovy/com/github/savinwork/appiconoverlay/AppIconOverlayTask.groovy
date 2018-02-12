@@ -54,14 +54,22 @@ class AppIconOverlayTask extends DefaultTask {
 
         if (header == "" && footer == "") {
             info("overlay text is empty")
-            info("task finished in ${System.currentTimeMillis() - t0}ms")
+            //info("task finished in ${System.currentTimeMillis() - t0}ms")
             return
         }
 
         // add launcher icon names
         def names = new HashSet<String>(config.getIconNames())
         for (BaseVariantOutput output: variant.outputs) {
-            String icon = getLauncherIcon(output.processManifest.manifestOutputFile)
+            info("gradleVersion = " + project.getGradle().getGradleVersion())
+            File manifestOutputFile
+            if (project.getGradle().getGradleVersion().startsWith("4")) {
+                manifestOutputFile = new File(output.processManifest.manifestOutputDirectory.absolutePath + "/AndroidManifest.xml")
+            } else {
+                manifestOutputFile = output.processManifest.manifestOutputFile
+            }
+            //info("manifestOutputFile = $manifestOutputFile")
+            String icon = getLauncherIcon(manifestOutputFile)
             if (!names.contains(icon))
                 names.add(icon)
         }
@@ -71,7 +79,7 @@ class AppIconOverlayTask extends DefaultTask {
                 for (File resDir : sourceProvider.resDirectories) {
                     if (resDir.compareTo(outputDir) != 0) {
 
-                        info("task started name: $n, dir: $resDir, include: ${resourceFilePattern(n)}")
+                        //info("task started name: $n, dir: $resDir, include: ${resourceFilePattern(n)}")
                         ConfigurableFileTree tree = project.fileTree(dir: resDir, include: resourceFilePattern(n));
                         for (File inputFile : tree.files) {
                             info("process $inputFile")
@@ -92,7 +100,7 @@ class AppIconOverlayTask extends DefaultTask {
             }
         }
 
-        info("task finished in ${System.currentTimeMillis() - t0}ms")
+        //info("task finished in ${System.currentTimeMillis() - t0}ms")
     }
 
     void info(String message) {

@@ -1,9 +1,11 @@
-import com.android.build.gradle.api.ApplicationVariant
-
 apply plugin: 'com.android.application'
 apply plugin: 'com.github.savinwork.appiconoverlay'
 
 android {
+    flavorDimensions "default"
+    lintOptions {
+        abortOnError false
+    }
     signingConfigs {
         config {
             keyAlias 'xxx'
@@ -12,12 +14,12 @@ android {
             storePassword 'xxx'
         }
     }
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    compileSdkVersion 26
+    buildToolsVersion "26.0.2"
     defaultConfig {
         applicationId "com.github.savinwork.appiconoverlay"
         minSdkVersion 15
-        targetSdkVersion 23
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
     }
@@ -59,10 +61,26 @@ android {
     }
 }
 
+buildscript {
+    repositories {
+        flatDir { dirs './plugins' }
+        //flatDir { dirs '../plugin/build/libs' }
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.github.savinwork.appiconoverlay:appiconoverlay:0.5.2"
+    }
+}
+
+repositories {
+    jcenter()
+    google()
+    mavenCentral()
+}
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.1.1'
+    implementation 'com.android.support:appcompat-v7:26.1.0'
 }
 
 appiconoverlay {
@@ -81,7 +99,7 @@ appiconoverlay {
     footerMaxHeightPerLine = 30 // percent
 
     ignoreRelease = false // ignore buildType.name == "release"
-    ignoreBranches "master"
+    //ignoreBranches "master"
     //ignoreFlavors "deploy", "beta"
 
     //iconNames "@drawable/my_logo" // extra graphics
